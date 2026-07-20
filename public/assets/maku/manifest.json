@@ -1,0 +1,21 @@
+{
+  "sit": [
+    "assets/maku/sit/1.png",
+    "assets/maku/sit/2.png",
+    "assets/maku/sit/3.png",
+    "assets/maku/sit/4.png",
+    "assets/maku/sit/5.png",
+    "assets/maku/sit/6.png"
+  ],
+  "rest": [
+    "assets/maku/rest/1.png",
+    "assets/maku/rest/2.png",
+    "assets/maku/rest/3.png"
+  ],
+  "call": {
+    "ring": "assets/maku/call/ring.png",
+    "hi": "assets/maku/call/hi.png",
+    "question": "assets/maku/call/question.png",
+    "answer": "assets/maku/call/answer.png"
+  }
+}

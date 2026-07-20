@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../public/css/style.css">
+<style>
+  body{padding:40px;}
+  .folder-wrap{display:flex; justify-content:center; margin-top:10px;}
+  .folder{
+    width:640px; background:var(--glow); border:3px solid var(--pine); border-radius:24px;
+    padding:0; overflow:hidden; box-shadow: 8px 8px 0 var(--sage);
+  }
+  .folder-tab-strip{display:flex; gap:8px; padding:16px 24px 0;}
+  .tab{
+    font-family:var(--display); font-weight:700; font-size:15px; padding:10px 20px;
+    border-radius:14px 14px 0 0; border:3px solid var(--pine); border-bottom:none;
+    background:var(--cream); color:var(--pine);
+  }
+  .tab.active{background:var(--glow);}
+  .folder-body{border-top:3px solid var(--pine); padding:24px; background:var(--glow);}
+  .note-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:2px dashed var(--sage);}
+  .note-row strong{font-family:var(--display);}
+  .chip{font-family:var(--mono); font-size:11px; background:var(--sage); padding:3px 10px; border-radius:999px;}
+</style></head>
+<body>
+<div class="texture-layer"></div>
+<div class="screen-header">
+  <button class="back-btn">← back</button>
+  <h2 class="screen-title">View Topics</h2>
+  <span></span>
+</div>
+<p class="mono-label" style="text-align:center;">folder opening: "Organic Chemistry — Ch. 4"</p>
+<div class="folder-wrap">
+  <div class="folder">
+    <div class="folder-tab-strip">
+      <div class="tab active">📓 Notes</div>
+      <div class="tab">📖 Definitions</div>
+      <div class="tab">💡 Key Concepts</div>
+    </div>
+    <div class="folder-body">
+      <div class="note-row"><strong>Nucleophilic Substitution</strong><span class="chip">source: lecture 4</span></div>
+      <div class="note-row"><strong>SN1 vs SN2 mechanisms</strong><span class="chip">source: lecture 4</span></div>
+      <div class="note-row"><strong>Leaving group stability</strong><span class="chip">source: textbook ch.9</span></div>
+      <p style="margin-top:18px; opacity:0.7; font-size:14px;">Rendered from your imported markdown — click any row to jump into Study mode with that section pre-selected.</p>
+    </div>
+  </div>
+</div>
+</body></html>

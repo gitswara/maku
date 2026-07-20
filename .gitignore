@@ -1,0 +1,15 @@
+# ---- secrets: NEVER commit these ----
+.env
+.env.*
+!.env.example
+
+# dependencies
+node_modules/
+
+# local study data (personal notes / imported topics)
+server/data/topics.json
+
+# OS / editor / logs
+.DS_Store
+*.log
+npm-debug.log*

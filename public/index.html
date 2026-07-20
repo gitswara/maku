@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maku</title>
+<link rel="icon" type="image/png" href="assets/maku/sit/3.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="texture-layer"></div>
+
+<!-- global sound preference -->
+<button class="sound-toggle" id="sound-toggle" aria-pressed="false" title="toggle sound">
+  <span class="dot"></span><span id="sound-label">SOUND OFF</span>
+</button>
+
+<!-- ============ HOME — the illustrated study desk ============ -->
+<section id="screen-entry" class="screen active home">
+  <div class="home-illustration no-img" id="home-illustration">
+    <img class="home-bg" id="home-bg" alt="Maku study desk" />
+    <nav class="home-nav" id="entry-menu">
+      <button class="station-btn" data-target="screen-import"><span class="num">1</span>Import Notes</button>
+      <button class="station-btn" data-target="screen-topics"><span class="num">2</span>View Topics</button>
+      <button class="station-btn" data-target="screen-study"><span class="num">3</span>Study</button>
+      <button class="station-btn" data-target="screen-call"><span class="num">4</span>Call Maku</button>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ VIEW TOPICS ============ -->
+<section id="screen-topics" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="topics-back" data-target="screen-entry">← back</button>
+    <h2 class="screen-title">View Topics</h2>
+    <span class="header-spacer"></span>
+  </div>
+
+  <div id="topics-picker" class="center-wrap">
+    <p class="mono-label" style="text-align:center;">your desk · pick a book</p>
+    <div id="topics-list" class="folder-stack"><p class="muted">Loading your topics…</p></div>
+  </div>
+
+  <div id="topics-folder-view" class="center-wrap" style="display:none;">
+    <p class="mono-label folder-caption" id="folder-caption"></p>
+    <div class="folder-wrap">
+      <div class="folder" id="folder">
+        <div class="folder-tab-strip">
+          <button class="tab active" data-tab="notes">Notes</button>
+          <button class="tab" data-tab="definitions">Definitions</button>
+          <button class="tab" data-tab="concepts">Concepts</button>
+          <button class="tab" data-tab="gaps">Gap Reports</button>
+          <button class="tab" data-tab="added">Added Notes</button>
+        </div>
+        <div class="folder-body" id="folder-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="corner-maku" id="corner-topics"></div>
+</section>
+
+<!-- ============ IMPORT NOTES — open notebook ============ -->
+<section id="screen-import" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" data-target="screen-entry">← back</button>
+    <h2 class="screen-title">Import Notes</h2>
+    <span class="header-spacer"></span>
+  </div>
+
+  <div class="import-panel">
+    <div class="notebook">
+      <div class="nb-side nb-left">
+        <h3>what are we learning?</h3>
+        <input id="topic-name-input" type="text" class="text-input"
+          placeholder="e.g. Organic Chemistry — Ch. 4" />
+        <div class="import-maku" id="import-maku"></div>
+      </div>
+      <div class="nb-side nb-right">
+        <h3>drop your notes here</h3>
+        <div id="drop-zone" class="drop-zone">
+          <p class="muted small">drag &amp; drop a .md file onto the page</p>
+          <p class="muted small">or</p>
+          <button class="back-btn" id="file-picker-btn">choose file</button>
+          <input type="file" id="file-input" accept=".md,.markdown,text/markdown,text/plain" hidden />
+        </div>
+        <p id="import-status" class="import-status"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STUDY ============ -->
+<section id="screen-study" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="study-back" data-target="screen-entry">← back</button>
+    <h2 class="screen-title" id="study-title">Study</h2>
+    <span class="header-spacer"></span>
+  </div>
+
+  <div id="study-picker" class="center-wrap">
+    <p class="mono-label" style="text-align:center;">pick a topic to study</p>
+    <div id="study-topics-list" class="folder-stack"><p class="muted">Loading…</p></div>
+  </div>
+
+  <div id="study-layout" class="study-layout" style="display:none;">
+    <div class="notes-pane">
+      <p class="mono-label">your notes · select text to highlight</p>
+      <div id="study-notes" class="rendered"></div>
+      <p class="hint-line">— highlights are saved and will still be here next time.</p>
+      <div id="highlight-pop" class="highlight-pop">+ Highlight</div>
+    </div>
+
+    <div class="tool-pane">
+      <div class="study-tabs">
+        <button class="stab active" data-stab="notetaking">Notes</button>
+        <button class="stab" data-stab="ai">AI Tools</button>
+        <button class="stab" data-stab="flash">Flashcards</button>
+        <button class="stab" data-stab="quiz">Quiz</button>
+        <div class="tool-maku" id="tool-maku"></div>
+      </div>
+
+      <div class="stab-panel active" id="stab-notetaking">
+        <p class="mono-label">your own notes &amp; annotations</p>
+        <textarea id="note-area" class="note-area" placeholder="Write your own notes here — supports markdown. Saved alongside the original."></textarea>
+        <div class="row-end">
+          <span class="save-hint" id="note-save-hint"></span>
+          <button class="add-btn" id="note-save">Save notes</button>
+        </div>
+      </div>
+
+      <div class="stab-panel" id="stab-ai">
+        <p class="mono-label">ask maku about the selected passage</p>
+        <div class="mode-row">
+          <button class="mode-btn selected" data-mode="question">Ask a question</button>
+          <button class="mode-btn" data-mode="analogy">Analogy</button>
+          <button class="mode-btn" data-mode="detail">More detail</button>
+          <button class="mode-btn" data-mode="freeform">Write my own</button>
+        </div>
+        <input id="study-input" class="text-input tool-input" type="text"
+          placeholder="type your question / what you want, then press Enter" />
+        <div class="ai-output" id="study-output">
+          <span class="muted">Select a passage on the left, pick an option, type your request, and press Enter.</span>
+        </div>
+        <button class="add-btn" id="study-add" disabled>+ Add to my notes</button>
+      </div>
+
+      <div class="stab-panel" id="stab-flash">
+        <div class="flash-toolbar">
+          <button class="pill-btn" id="flash-generate">Generate from notes</button>
+          <button class="pill-btn" id="flash-add">+ New card</button>
+          <button class="add-btn" id="flash-practice">Practice</button>
+        </div>
+        <div id="flash-list" class="flash-list"></div>
+      </div>
+
+      <div class="stab-panel" id="stab-quiz">
+        <div id="quiz-intro" class="quiz-intro">
+          <p class="muted">A multiple-choice practice quiz generated from your notes, one question at a time.</p>
+          <button class="add-btn" id="quiz-start">Generate quiz</button>
+        </div>
+        <div id="quiz-run" class="quiz-run" style="display:none;">
+          <div class="quiz-progress" id="quiz-progress"></div>
+          <p class="quiz-question" id="quiz-question"></p>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-feedback" id="quiz-feedback"></div>
+          <button class="add-btn" id="quiz-next" style="display:none;">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="flash-practice-overlay" class="overlay" style="display:none;">
+    <div class="flash-card-stage">
+      <div class="flash-progress" id="fp-progress"></div>
+      <div class="flash-card" id="fp-card"><div class="fp-face" id="fp-face"></div><span class="fp-hint">click to flip</span></div>
+      <div class="fp-controls">
+        <button class="pill-btn" id="fp-prev">prev</button>
+        <button class="pill-btn" id="fp-next">next</button>
+        <button class="add-btn" id="fp-done">Done</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALL MAKU ============ -->
+<section id="screen-call" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="call-back" data-target="screen-entry">← back</button>
+    <h2 class="screen-title">Call Maku</h2>
+    <span class="header-spacer"></span>
+  </div>
+
+  <div id="call-setup" class="center-wrap">
+    <p class="mono-label" style="text-align:center;">1 · pick a topic</p>
+    <div id="call-topics-list" class="folder-stack"><p class="muted">Loading…</p></div>
+
+    <p class="mono-label" style="text-align:center; margin-top:20px;">2 · pick a mode</p>
+    <div class="call-mode-grid" id="call-mode-grid">
+      <button class="call-mode-card" data-mode="examples"><strong>Solve examples</strong><span>Maku sets practice problems and reacts to your solutions.</span></button>
+      <button class="call-mode-card" data-mode="quiz"><strong>Test definitions &amp; formulas</strong><span>Quick-fire recall, flashcards out loud.</span></button>
+      <button class="call-mode-card" data-mode="questions"><strong>Ask me questions</strong><span>Open-ended, oral-exam style questioning.</span></button>
+      <button class="call-mode-card" data-mode="teach"><strong>Teach Maku</strong><span>Maku plays a confused classmate — you explain, Maku probes.</span></button>
+    </div>
+
+    <button class="start-call-btn" id="start-call-btn" disabled>Call Maku</button>
+    <div class="corner-maku" id="corner-call"></div>
+  </div>
+
+  <div id="call-active" class="call-active" style="display:none;">
+    <p class="mono-label" id="call-mode-label">mode: teach maku</p>
+    <div class="phone" id="phone">
+      <div class="phone-screen">
+        <div class="mode-pill" id="call-pill">TEACH MAKU · 00:00</div>
+        <div class="maku-big" id="maku-call"></div>
+        <div class="ring-status" id="ring-status">Calling Maku<span class="ring-dots"><i>.</i><i>.</i><i>.</i></span></div>
+        <div class="speech-bubble" id="speech-bubble">…</div>
+        <div class="checklist-mini" id="checklist-mini"></div>
+        <input id="call-text-input" class="text-input call-text-input" type="text"
+          placeholder="type your reply (or use the mic)…" />
+        <div class="controls">
+          <button class="ctrl" id="mic-btn" title="click to speak">talk</button>
+          <button class="ctrl end" id="end-call-btn" title="end call">end</button>
+        </div>
+      </div>
+    </div>
+    <p class="call-hint muted small" id="call-hint">Speak or type your reply. Maku is listening.</p>
+  </div>
+
+  <div id="call-report" class="center-wrap" style="display:none;">
+    <p class="mono-label" style="text-align:center;">call ended · gap report saved to this topic</p>
+    <div class="panel report-panel">
+      <div class="report-head">
+        <div class="report-maku" id="report-maku"></div>
+        <div id="report-body" class="rendered"></div>
+      </div>
+      <button class="add-btn" id="report-done">Back to menu</button>
+    </div>
+  </div>
+</section>
+
+<script src="js/maku.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

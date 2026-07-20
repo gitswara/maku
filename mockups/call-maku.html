@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../public/css/style.css">
+<style>
+  body{padding:40px; display:flex; flex-direction:column; align-items:center;}
+  .phone{
+    width:320px; background:var(--pine); border-radius:36px; padding:14px;
+    box-shadow: 10px 10px 0 var(--sage);
+  }
+  .phone-screen{
+    background: radial-gradient(circle at 50% 35%, var(--glow), var(--sage) 80%);
+    border-radius:24px; height:460px; display:flex; flex-direction:column;
+    align-items:center; justify-content:space-between; padding:20px 16px; position:relative;
+  }
+  .call-status{font-family:var(--mono); font-size:11px; color:var(--pine); letter-spacing:0.1em;}
+  .maku-big{width:150px; margin-top:20px;}
+  .speech-bubble{
+    background:var(--cream); border:3px solid var(--pine); border-radius:18px;
+    padding:14px 16px; font-size:14px; font-family:var(--body); max-width:240px; margin-top:16px;
+  }
+  .controls{display:flex; gap:16px; margin-bottom:6px;}
+  .ctrl{width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid var(--pine); font-size:20px; background:var(--cream);}
+  .ctrl.end{background:#C97064; color:white; border-color:#C97064;}
+  .mode-pill{position:absolute; top:14px; left:50%; transform:translateX(-50%); font-family:var(--mono); font-size:10px; background:var(--pine); color:var(--cream); padding:4px 12px; border-radius:999px;}
+</style></head>
+<body>
+<div class="texture-layer"></div>
+<p class="mono-label">mode: teach maku</p>
+<div class="phone">
+  <div class="phone-screen">
+    <div class="mode-pill">TEACH MAKU · 02:14</div>
+    <svg width="130" height="140" viewBox="0 0 140 150" class="maku-big">
+      <ellipse cx="70" cy="112" rx="46" ry="34" fill="#F6F4E4" />
+      <circle cx="70" cy="55" r="50" fill="#F6F4E4" />
+      <circle cx="53" cy="52" r="4.5" fill="#2B2A1E" />
+      <circle cx="87" cy="52" r="4.5" fill="#2B2A1E" />
+      <ellipse cx="70" cy="74" rx="8" ry="5" fill="#2B2A1E" />
+    </svg>
+    <div class="speech-bubble">"wait — so why does the leaving group matter for SN1 if the nucleophile attacks after?"</div>
+    <div class="controls">
+      <div class="ctrl">🎙️</div>
+      <div class="ctrl end">⏹</div>
+    </div>
+  </div>
+</div>
+</body></html>

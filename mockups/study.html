@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link rel="stylesheet" href="../public/css/style.css">
+<style>
+  body{padding:40px;}
+  .study-layout{display:flex; gap:20px; height:520px;}
+  .notes-pane{flex:1.1; background:var(--cream); border:3px solid var(--pine); border-radius:20px; padding:24px; overflow:auto; font-size:15px; line-height:1.6;}
+  .tool-pane{flex:0.9; background:var(--glow); border:3px solid var(--pine); border-radius:20px; padding:24px; display:flex; flex-direction:column; gap:14px;}
+  .highlight{background:var(--sage); border-radius:4px; padding:1px 3px;}
+  .mode-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .mode-btn{font-family:var(--display); font-weight:700; font-size:13px; padding:8px 14px; border:2px solid var(--pine); border-radius:999px; background:var(--cream);}
+  .mode-btn.selected{background:var(--pine); color:var(--cream);}
+  .ai-output{flex:1; background:var(--cream); border-radius:14px; border:2px dashed var(--moss); padding:16px; font-size:14px; overflow:auto;}
+  .add-btn{align-self:flex-start; font-family:var(--display); font-weight:700; background:var(--moss); color:var(--cream); border:none; border-radius:999px; padding:10px 20px;}
+</style></head>
+<body>
+<div class="texture-layer"></div>
+<div class="screen-header">
+  <button class="back-btn">← back</button>
+  <h2 class="screen-title">Study — Organic Chemistry, Ch. 4</h2>
+  <span></span>
+</div>
+<div class="study-layout">
+  <div class="notes-pane">
+    <p class="mono-label">your notes</p>
+    <h3 style="font-family:var(--display);">SN1 vs SN2</h3>
+    <p>SN2 reactions happen in a single step: the nucleophile attacks the backbone
+    carbon at the same time the leaving group departs, causing an inversion of
+    configuration (like an umbrella flipping inside out).</p>
+    <p><span class="highlight">SN1 reactions instead proceed in two steps — the leaving
+    group departs first, forming a carbocation intermediate, and the nucleophile
+    attacks afterward.</span> This is why SN1 reactions favor more substituted
+    (more stable) carbocations.</p>
+    <p style="opacity:0.55; font-size:13px;">— selected passage is highlighted; the tool panel on the right acts on it →</p>
+  </div>
+  <div class="tool-pane">
+    <p class="mono-label">ask maku about this passage</p>
+    <div class="mode-row">
+      <div class="mode-btn selected">Ask a question</div>
+      <div class="mode-btn">Analogy</div>
+      <div class="mode-btn">More detail</div>
+      <div class="mode-btn">Write my own</div>
+    </div>
+    <div class="ai-output">
+      <strong>You asked:</strong> "why does the carbocation intermediate matter?"<br/><br/>
+      <strong>Maku:</strong> Because that intermediate is a free-standing, positively
+      charged carbon — it can be attacked from either face, and its stability
+      (3° > 2° > 1°) directly determines how fast the SN1 reaction goes...
+    </div>
+    <button class="add-btn">+ Add to notes</button>
+  </div>
+</div>
+</body></html>
