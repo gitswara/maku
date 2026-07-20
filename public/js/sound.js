@@ -85,7 +85,8 @@ window.Sound = (function () {
   function setOn(v) {
     on = !!v;
     localStorage.setItem('maku-sound', on ? 'on' : 'off');
-    if (on) { ac(); startMusic(); } else { stopMusic(); }
+    if (on) { ac(); startMusic(); }
+    else { stopMusic(); if (window.__makuStopVoice) window.__makuStopVoice(); }
     render();
   }
   function toggle() { setOn(!on); if (on) play('pop'); }

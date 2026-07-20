@@ -429,7 +429,7 @@ mark.hl:hover { background: var(--peach); }
   align-items: center; padding: 20px 16px; position: relative; gap: 12px;
 }
 .mode-pill { font-family: var(--pixel); font-size: 8px; letter-spacing: 0.04em; background: var(--moss-deep); color: var(--paper-2); padding: 6px 12px; border-radius: 999px; }
-.maku-big { width: min(340px, 84vw); height: 248px; margin-top: 4px; }
+.maku-big { width: min(300px, 100%); height: 188px; margin-top: 4px; }
 .ring-status { font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--pine); display: none; }
 .call-active.ringing .ring-status, .call-active.ending .ring-status { display: block; }
 .call-active.ringing .speech-bubble, .call-active.ringing .checklist-mini,
@@ -441,8 +441,8 @@ mark.hl:hover { background: var(--peach); }
 @keyframes ringdot { 0%, 60%, 100% { opacity: 0.2; } 30% { opacity: 1; } }
 @keyframes ring-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 .call-active.ringing .phone { animation: ring-shake 0.55s ease-in-out infinite; }
-.speech-bubble { background: var(--paper-2); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px 16px; font-size: 15px; line-height: 1.4; max-width: 270px; color: var(--ink); }
-.checklist-mini { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 290px; }
+.speech-bubble { background: var(--paper-2); border: 1.5px solid var(--line); border-radius: 18px; padding: 14px 16px; font-size: 15px; line-height: 1.4; max-width: 270px; color: var(--ink); max-height: min(190px, 26vh); overflow-y: auto; }
+.checklist-mini { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 290px; max-height: 76px; overflow-y: auto; }
 .checklist-mini .chip-c { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 999px; background: var(--paper-2); border: 1.5px solid var(--moss); color: var(--pine); opacity: 0.75; }
 .checklist-mini .chip-c.done { background: var(--maku); color: var(--ink); opacity: 1; }
 .call-text-input { max-width: 290px; margin-top: auto; }
@@ -492,13 +492,10 @@ mark.hl:hover { background: var(--peach); }
   background: var(--paper) url('../assets/backgrounds/notes.png') center / cover no-repeat;
   background-attachment: fixed;
 }
-/* call.png takes over only while a call is in progress */
-#call-active {
-  background: url('../assets/backgrounds/call.png') center / cover no-repeat;
-}
-/* call.png already draws the phone — drop our green handset chrome */
-#call-active .phone { background: transparent; border: none; box-shadow: none; padding: 0; }
-#call-active .phone-screen { background: transparent; border: none; }
+/* Call in progress uses the notes.png desk background (from #screen-call)
+   with our own drawn phone (.phone) centered on it — content lives inside
+   the phone we draw, so it always lines up. */
+.screen-header { position: relative; z-index: 6; }
 
 /* ========================================================================
    Responsive + reduced motion

@@ -90,10 +90,19 @@ async function complete(system, messages, maxTokens = 1000) {
 }
 
 // Ask Claude for strict JSON and parse it safely.
+// Parse JSON that may be wrapped in prose or code fences.
+function parseLooseJSON(text) {
+  const cleaned = String(text).replace(/```json|```/g, '').trim();
+  try { return JSON.parse(cleaned); } catch {}
+  const m = cleaned.match(/[\{\[][\s\S]*[\}\]]/); // first {...} or [...]
+  if (m) { try { return JSON.parse(m[0]); } catch {} }
+  return null;
+}
 async function askForJSON(systemPrompt, userPrompt, maxTokens = 2000) {
   const text = await complete(systemPrompt, [{ role: 'user', content: userPrompt }], maxTokens);
-  const cleaned = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(cleaned);
+  const parsed = parseLooseJSON(text);
+  if (!parsed) throw new Error('Model did not return valid JSON');
+  return parsed;
 }
 
 function studyCorpus(topic) {
@@ -129,7 +138,7 @@ function checklistFrom(topic) {
 function stripEmoji(s) {
   return String(s)
     .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}\u{2460}-\u{24FF}\u{25A0}-\u{25FF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
-    .replace(/\s{2,}/g, ' ')
+    .replace(/[^\S\n]{2,}/g, ' ') // collapse runs of spaces/tabs but keep newlines (markdown-safe)
     .trim();
 }
 const NO_EMOJI = 'Never use emojis, emoticons, or symbols — your reply is read aloud as speech.';
@@ -412,11 +421,11 @@ ${NO_EMOJI} The "reply" text must contain no emoji.`;
     if (!convo.length) convo.push({ role: 'user', content: '(the student is ready to begin)' });
 
     const raw = await complete(system, convo, 700);
-    let parsed;
-    try {
-      parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
-    } catch {
-      parsed = { reply: raw.trim(), covered: [] };
+    let parsed = parseLooseJSON(raw);
+    if (!parsed || typeof parsed.reply !== 'string') {
+      // last resort: drop any trailing JSON blob, keep the prose
+      const prose = String(raw).replace(/```json|```/g, '').replace(/\{[\s\S]*\}\s*$/, '').trim();
+      parsed = { reply: prose || String(raw).trim(), covered: [] };
     }
 
     const newlyCovered = new Set((parsed.covered || []).map(String));
@@ -450,7 +459,7 @@ Base it on the tracked understanding state, not a re-read of everything:
 - Concepts the student showed they understand: ${covered.join(', ') || '(none yet)'}
 - Concepts still shaky / not demonstrated: ${gaps.join(', ') || '(none — solid across the board!)'}
 
-For each shaky concept, add ONE focused, targeted study prompt or mini-explanation that would close the gap. If there are no gaps, celebrate briefly and suggest one stretch question. Keep it tight and warm. Do not include a top-level heading — start with the content.`;
+For each shaky concept, add ONE focused, targeted study prompt or mini-explanation that would close the gap. If there are no gaps, celebrate briefly and suggest one stretch question. Keep it tight and warm. Do not include a top-level heading — start with the content. Do not use any emojis, emoticons, or symbols.`;
 
     const report = await complete(
       system,
@@ -462,7 +471,7 @@ For each shaky concept, add ONE focused, targeted study prompt or mini-explanati
       id: newId(),
       label: modeCfg.label,
       date: new Date().toISOString(),
-      report: report.trim()
+      report: stripEmoji(report)
     };
     topic.gapReports.unshift(entry);
     topic.activity.callSessions += 1;

@@ -830,6 +830,9 @@ async function speak(text, onDone) {
   let done = false;
   const finish = () => { if (done) return; done = true; makuCall.classList.remove('speaking'); if (onDone) onDone(); };
 
+  // sound off → no text-to-speech; just pace the turn silently
+  if (!Sound.isOn()) { setTimeout(finish, Math.min(4500, 900 + text.length * 32)); return; }
+
   if (ttsEnabled !== false) {
     try {
       const res = await fetch('/api/tts', {
@@ -858,6 +861,7 @@ function stopVoice() {
   makuCall.classList.remove('speaking');
   stopListening();
 }
+window.__makuStopVoice = stopVoice; // let the sound toggle silence in-progress speech
 
 // ---------- voice: speech recognition (in) ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
