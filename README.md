@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="maku-app/public/assets/maku/sit/3.png" alt="Maku sprite" width="100" />
-</p>
 
 <h1 align="center">MAKU</h1>
 
@@ -13,9 +10,7 @@
   identifies conceptual gaps, and turns them into targeted study material.
 </p>
 
-<p align="center">
-  <img src="maku-app/public/assets/screenshots/home.jpeg" alt="Maku home screen" width="900" />
-</p>
+
 
 ---
 
