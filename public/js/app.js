@@ -282,6 +282,7 @@ async function openStudy(name, presetPassage, useFlip) {
 
     renderNotesWithHighlights();
     selectedPassage = presetPassage || '';
+    updateAiButtons();
     studyInput.value = '';
     lastStudyResult = '';
     studyAddBtn.disabled = true;
@@ -314,26 +315,43 @@ function switchStab(name) {
   document.querySelectorAll('.stab-panel').forEach(p => p.classList.toggle('active', p.id === 'stab-' + name));
 }
 
-// ---- highlights ----
+// ---- highlights (offset-based, so selections spanning multiple nodes work) ----
+function offsetInNotes(node, offset) {
+  const r = document.createRange();
+  r.setStart(studyNotes, 0);
+  r.setEnd(node, offset);
+  return r.toString().length;
+}
+function wrapRange(start, len, id) {
+  if (len <= 0) return;
+  const end = start + len;
+  const walker = document.createTreeWalker(studyNotes, NodeFilter.SHOW_TEXT);
+  let pos = 0, node; const segs = [];
+  while ((node = walker.nextNode())) {
+    const nStart = pos, nEnd = pos + node.nodeValue.length; pos = nEnd;
+    if (node.parentNode.nodeName === 'MARK') continue;
+    const from = Math.max(start, nStart), to = Math.min(end, nEnd);
+    if (to > from) segs.push({ node, a: from - nStart, b: to - nStart });
+  }
+  segs.forEach(({ node, a, b }) => {
+    try {
+      const r = document.createRange(); r.setStart(node, a); r.setEnd(node, b);
+      const m = document.createElement('mark'); m.className = 'hl';
+      if (id) m.setAttribute('data-hl', id);
+      r.surroundContents(m);
+    } catch {}
+  });
+}
 function renderNotesWithHighlights() {
   studyNotes.innerHTML = renderMarkdown(studyTopic.markdown);
-  (studyTopic.highlights || []).forEach(h => wrapFirst(studyNotes, h));
-}
-function wrapFirst(container, phrase) {
-  if (!phrase) return false;
-  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    if (node.parentNode.nodeName === 'MARK') continue;
-    const idx = node.nodeValue.indexOf(phrase);
-    if (idx >= 0) {
-      const range = document.createRange();
-      range.setStart(node, idx); range.setEnd(node, idx + phrase.length);
-      const mark = document.createElement('mark'); mark.className = 'hl';
-      try { range.surroundContents(mark); return true; } catch { return false; }
+  (studyTopic.highlights || []).forEach(h => {
+    if (typeof h === 'string') {                    // legacy string highlights
+      const idx = studyNotes.textContent.indexOf(h);
+      if (idx >= 0) wrapRange(idx, h.length, null);
+    } else if (h && typeof h.start === 'number') {
+      wrapRange(h.start, h.len, h.id);
     }
-  }
-  return false;
+  });
 }
 async function saveHighlights() {
   try {
@@ -345,47 +363,68 @@ async function saveHighlights() {
 }
 studyNotes.addEventListener('mouseup', () => {
   const sel = window.getSelection();
-  const text = sel.toString().trim();
-  if (text) {
-    selectedPassage = text;
-    pendingHighlight = text;
-    const rect = sel.getRangeAt(0).getBoundingClientRect();
-    highlightPop.style.left = Math.max(8, rect.left + rect.width / 2 - 40) + 'px';
-    highlightPop.style.top = Math.max(8, rect.top - 42) + 'px';
-    highlightPop.classList.add('show');
-  }
+  const text = sel.toString();
+  if (!text.trim() || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (!studyNotes.contains(range.startContainer)) return;
+  selectedPassage = text.trim();
+  updateAiButtons();
+  const start = offsetInNotes(range.startContainer, range.startOffset);
+  pendingHighlight = {
+    id: 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    start, len: text.length, text
+  };
+  const rect = range.getBoundingClientRect();
+  highlightPop.style.left = Math.max(8, rect.left + rect.width / 2 - 40) + 'px';
+  highlightPop.style.top = Math.max(8, rect.top - 42) + 'px';
+  highlightPop.classList.add('show');
 });
 highlightPop.addEventListener('mousedown', e => e.preventDefault()); // keep selection
 highlightPop.addEventListener('click', () => {
   if (!pendingHighlight || !studyTopic) return;
-  if (!studyTopic.highlights.includes(pendingHighlight)) {
-    studyTopic.highlights.push(pendingHighlight);
-    saveHighlights();
-    renderNotesWithHighlights();
-  }
+  studyTopic.highlights.push(pendingHighlight);
+  saveHighlights();
+  renderNotesWithHighlights();
   window.getSelection().removeAllRanges();
   highlightPop.classList.remove('show');
+  pendingHighlight = null;
 });
 document.addEventListener('mousedown', e => {
   if (e.target !== highlightPop && !studyNotes.contains(e.target)) highlightPop.classList.remove('show');
 });
 // click a highlight to remove it
 studyNotes.addEventListener('click', e => {
-  if (e.target.nodeName === 'MARK' && studyTopic) {
-    const txt = e.target.textContent;
-    studyTopic.highlights = studyTopic.highlights.filter(h => h !== txt);
+  const mk = e.target.closest && e.target.closest('mark.hl');
+  if (mk && studyTopic) {
+    const id = mk.getAttribute('data-hl'), txt = mk.textContent;
+    studyTopic.highlights = (studyTopic.highlights || []).filter(h =>
+      (typeof h === 'string') ? h !== txt : h.id !== id);
     saveHighlights();
     renderNotesWithHighlights();
   }
 });
 
-// ---- AI tools (no auto-generate; Enter to run) ----
+// Analogy / More detail need a highlighted passage before they can be used.
+function updateAiButtons() {
+  const has = !!selectedPassage;
+  document.querySelectorAll('#stab-ai .mode-btn[data-mode="analogy"], #stab-ai .mode-btn[data-mode="detail"]')
+    .forEach(b => { b.disabled = !has; });
+}
+
+// ---- AI tools: Analogy / More detail run instantly; "Ask your own" takes input ----
 document.querySelectorAll('#stab-ai .mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#stab-ai .mode-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     studyMode = btn.dataset.mode;
-    studyInput.focus();
+    if (studyMode === 'question') {          // "Ask your own"
+      studyInput.style.display = '';
+      studyInput.value = '';
+      studyInput.focus();
+    } else {                                 // Analogy / More detail → generate now
+      studyInput.style.display = 'none';
+      runStudyAsk();
+    }
   });
 });
 studyInput.addEventListener('keydown', e => { if (e.key === 'Enter') runStudyAsk(); });
@@ -393,8 +432,10 @@ studyInput.addEventListener('keydown', e => { if (e.key === 'Enter') runStudyAsk
 async function runStudyAsk() {
   if (!selectedPassage) { studyOutput.innerHTML = '<span class="muted">Select a passage in your notes first.</span>'; return; }
   const userInput = studyInput.value.trim();
-  if (!userInput) { studyOutput.innerHTML = '<span class="muted">Type your question or request, then press Enter.</span>'; return; }
-  studyOutput.innerHTML = '<span class="muted">Maku is thinking…</span>';
+  if (studyMode === 'question' && !userInput) { studyOutput.innerHTML = '<span class="muted">Type your question, then press Enter.</span>'; return; }
+  const labels = { analogy: 'Explain with an analogy', detail: 'More detail' };
+  const snip = escapeHtml(selectedPassage.slice(0, 200)) + (selectedPassage.length > 200 ? '…' : '');
+  studyOutput.innerHTML = `<div class="passage-snip">“${snip}”</div><span class="muted">Maku is thinking…</span>`;
   studyAddBtn.disabled = true;
   Maku.mount(toolMaku, 'thinking');
   try {
@@ -405,7 +446,10 @@ async function runStudyAsk() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Request failed');
     lastStudyResult = data.result;
-    studyOutput.innerHTML = `<strong>You asked:</strong> "${escapeHtml(userInput)}"<br/><br/><strong>Maku:</strong> ${renderMarkdown(data.result)}`;
+    const asked = userInput
+      ? `<strong>You asked:</strong> "${escapeHtml(userInput)}"<br/><br/>`
+      : `<strong>${labels[studyMode] || 'Maku'}:</strong><br/><br/>`;
+    studyOutput.innerHTML = `${asked}<strong>Maku:</strong> ${renderMarkdown(data.result)}`;
     studyAddBtn.disabled = false;
     Maku.mount(toolMaku, 'happy');
     setTimeout(() => Maku.mount(toolMaku, 'idle'), 2200);

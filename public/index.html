@@ -131,17 +131,16 @@
       </div>
 
       <div class="stab-panel" id="stab-ai">
-        <p class="mono-label">ask maku about the selected passage</p>
+        <p class="mono-label">select a passage, then pick one</p>
         <div class="mode-row">
-          <button class="mode-btn selected" data-mode="question">Ask a question</button>
-          <button class="mode-btn" data-mode="analogy">Analogy</button>
-          <button class="mode-btn" data-mode="detail">More detail</button>
-          <button class="mode-btn" data-mode="freeform">Write my own</button>
+          <button class="mode-btn" data-mode="analogy" disabled>Analogy</button>
+          <button class="mode-btn" data-mode="detail" disabled>More detail</button>
+          <button class="mode-btn" data-mode="question">Ask your own</button>
         </div>
-        <input id="study-input" class="text-input tool-input" type="text"
-          placeholder="type your question / what you want, then press Enter" />
+        <input id="study-input" class="text-input tool-input" type="text" style="display:none;"
+          placeholder="type your question about the passage, then press Enter" />
         <div class="ai-output" id="study-output">
-          <span class="muted">Select a passage on the left, pick an option, type your request, and press Enter.</span>
+          <span class="muted">Select a passage on the left, then pick <b>Analogy</b> or <b>More detail</b> to generate instantly — or <b>Ask your own</b> to type a question.</span>
         </div>
         <button class="add-btn" id="study-add" disabled>+ Add to my notes</button>
       </div>
